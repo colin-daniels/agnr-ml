@@ -1,4 +1,6 @@
 # AGNR-ML
+![rust-build-status](https://github.com/colin-daniels/agnr-ml/workflows/Rust/badge.svg)
+
 Research code for the generation and analysis of armchair graphene nanoribbon
 (AGNR) structures using machine learning.
 
