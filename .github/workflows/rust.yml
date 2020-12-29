@@ -1,0 +1,76 @@
+name: Rust
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-python@v2
+      with:
+        python-version: '3.8'
+        architecture: 'x64'
+
+      # Install required system packages
+    - name: Install Required Packages
+      run: |
+        sudo apt-get update
+        DEBIAN_FRONTEND="noninteractive" \
+          sudo apt-get install -y --no-install-recommends \
+            clang \
+            cmake \
+            gfortran \
+            libffi-dev \
+            libopenblas-dev \
+            pkg-config
+
+      # Cache python virtual environment
+    - name: Cache Python Environment
+      id: cache-venv
+      uses: actions/cache@v2.1.3
+      with:
+        path: .venv
+        key: ${{ runner.os }}-venv-${{ hashFiles('**/requirements.txt') }}
+
+      # Install requirements if there was a cache miss
+    - name: Setup Python Environment
+      if: steps.cache-venv.outputs.cache-hit != 'true'
+      run: |
+        # use venv because then we can cache it
+        python -m venv .venv
+        source .venv/bin/activate
+        pip install --upgrade pip wheel
+        # phonopy doesn't like it if numpy isn't installed first
+        pip install -r <(grep numpy requirements.txt)
+        pip install -r requirements.txt
+
+      # Cache cargo files based off of Cargo.lock
+    - name: Cache Cargo
+      uses: actions/cache@v2.1.3
+      with:
+        path: |
+          ~/.cargo/registry
+          ~/.cargo/git
+          */target
+        key: ${{ runner.os }}-cargo-${{ hashFiles('*/Cargo.lock') }}
+
+    - name: Build
+      run: |
+        source .venv/bin/activate
+        cargo build --verbose --manifest-path generation/Cargo.toml
+        # we don't use MPI for rsp2
+        cargo build --verbose --no-default-features --manifest-path rsp2/Cargo.toml
+
+    - name: Run Tests
+      run: |
+        source .venv/bin/activate
+        cargo test --verbose --no-default-features --manifest-path rsp2/Cargo.toml
