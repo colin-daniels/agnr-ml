@@ -1,0 +1,41 @@
+[package]
+!!CRATE-NAME-LINE
+version = "0.1.0"
+authors = ["Michael Lamparski <diagonaldevice@gmail.com>"]
+!!LICENSE-PERMISSIVE
+!!DEFAULT-EDITION
+
+[lib]
+path = "lib.rs"
+
+[dependencies]
+!!rsp2-structure
+!!rsp2-assert-close
+!!rsp2-array-types
+!!rsp2-util-macros
+!!rsp2-newtype-indices
+!!rsp2-minimize
+
+!!slice-of-array
+!!lazy-static
+!!enum-map
+!!petgraph
+!!failure
+!!stack
+!!rayon
+!!rayon-cond
+!!log
+
+# This should be a dev-dependency, but see this bug:
+# https://github.com/rust-lang/cargo/issues/6915
+!!rsp2-structure-io
+
+[dev-dependencies]
+!!serde
+!!serde-json
+!!serde-derive
+!!rand
+!!xz2
+
+[features]
+!!NIGHTLY-FEATURE-LINE

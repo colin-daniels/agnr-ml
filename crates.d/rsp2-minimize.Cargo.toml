@@ -1,0 +1,30 @@
+[package]
+!!CRATE-NAME-LINE
+version = "0.1.0"
+authors = ["Michael Lamparski <diagonaldevice@gmail.com>"]
+description = "Function minimization algorithms, even in multiple dimensions."
+!!LICENSE-PERMISSIVE
+!!DEFAULT-EDITION
+
+[dependencies]
+!!itertools
+!!log
+!!ordered-float
+!!rand
+!!serde
+!!serde-derive
+!!serde-json
+!!either
+!!objekt
+
+!!rsp2-assert-close
+!!rsp2-slice-math
+!!rsp2-util-macros
+
+!!failure
+
+[dev-dependencies]
+!!env-logger
+
+[features]
+!!NIGHTLY-FEATURE-LINE

@@ -1,0 +1,19 @@
+# NOTE: apply this after defaults.yaml
+
+potential:
+  - kc-z-new:
+      cutoff: 14
+      cutoff-length: 0 # simulate lammps' quirks
+  - rebo-new:
+      params: lammps
+
+scale-ranges:
+  scalables: []
+
+cg.stop-condition: true # stop immediately
+
+phonons:
+  eigensolver:
+    dense: {}
+
+bond-radius: 1.8

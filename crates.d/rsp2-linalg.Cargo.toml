@@ -1,0 +1,26 @@
+[package]
+!!CRATE-NAME-LINE
+version = "0.1.0"
+authors = ["Michael Lamparski <diagonaldevice@gmail.com>"]
+!!LICENSE-PERMISSIVE
+!!DEFAULT-EDITION
+
+[lib]
+path = "lib.rs"
+
+[dependencies]
+!!rsp2-assert-close
+#!!rsp2-shims
+!!rsp2-array-types
+!!failure
+!!slice-of-array
+#!!frunk
+!!lapacke
+!!lapack-src
+!!ndarray
+!!rand
+!!num-traits
+!!num-integer
+
+[features]
+!!NIGHTLY-FEATURE-LINE

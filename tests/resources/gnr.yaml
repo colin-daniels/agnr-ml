@@ -1,0 +1,21 @@
+# NOTE: apply this after defaults.yaml
+
+potential:
+  rebo-new:
+    params: lammps
+
+scale-ranges:
+  scalables: []
+
+parameters: [a, ~, ~]
+
+phonons:
+  eigensolver:
+    dense: {}
+
+acoustic-search:
+  expected-non-translations: 1
+
+bond-radius: 1.8
+lammps:
+  processor-axis-mask: [true, true, false]

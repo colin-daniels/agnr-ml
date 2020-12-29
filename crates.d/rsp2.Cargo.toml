@@ -1,0 +1,96 @@
+!!MAYBE-CARGO-FEATURES
+
+[package]
+!!CRATE-NAME-LINE
+version = "0.1.0"
+authors = ["Michael Lamparski <diagonaldevice@gmail.com>"]
+!!DEFAULT-EDITION
+
+# Note: The majority of subcrates are dual-licensed under MIT or Apache 2.0,
+#       but the project as a whole is provided under the GPL.
+#       Please refer to individual subcrate Cargo.tomls and source file headers.
+!!LICENSE-GPL
+
+!!BINARY-SHIM-BIN-ENTRIES
+
+[dependencies]
+
+# Workspace members
+!!rsp2-lammps-wrap
+!!rsp2-tasks
+!!rsp2-minimize
+!!rsp2-assert-close
+!!rsp2-structure
+!!rsp2-structure-io
+!!rsp2-slice-math
+!!rsp2-util-macros
+!!rsp2-fs-util
+!!rsp2-clap
+!!rsp2-tasks-config
+!!rsp2-array-types
+!!rsp2-linalg
+!!rsp2-integration-test
+!!rsp2-soa-ops
+!!rsp2-newtype-indices
+!!rsp2-python
+!!rsp2-potentials
+!!rsp2-dftbplus { optional = true, default-features = false }
+!!rsp2c_unfold
+!!rsp2-phonopy-io
+!!rsp2-sparse
+!!rsp2-dynmat
+#!!INSERTION POINT FOR NEW CRATES!!#
+# (do not edit the above line!)
+
+# Deps of examples/ and tests/.
+# Some of these could be dev-dependencies, however currently
+#  none of them are due to rust-lang-nursery/rls#169
+!!rand
+!!serde_json
+!!serde_yaml
+!!log
+!!fern
+!!env-logger
+!!clap
+!!rsp2-kets
+!!slice-of-array
+!!ansi-term
+!!itertools
+!!failure
+!!path-abs
+!!serde
+!!serde-derive
+!!pretty-assertions
+!!mpi { optional = true }
+
+!!libffi-sys { features = ["system"] }
+
+[build-dependencies]
+!!vergen
+
+[features]
+default = ["mpi-support"]
+
+# Used by integration tests to make them show nice diffs using pretty_assertions.
+#
+# see doc/updating-tests.md for more details
+test-diff=["rsp2-integration-test/test-diff"]
+
+# FIXME
+# Features for optional deps, because the implicit features defined by deps do not scale well.
+# For now, THESE are what you should toggle in dependent crates.
+#
+# Once namespaced-features are stabilized, these features will be renamed after the deps.
+# see https://github.com/rust-lang/cargo/issues/1286 (problem and proposal)
+#     https://github.com/rust-lang/cargo/issues/5565 (tracking issue, of sorts)
+mpi-support = ["mpi", "rsp2-tasks/mpi-support"]
+dftbplus-support = ["rsp2-tasks/dftbplus-support"]
+
+!!NIGHTLY-FEATURE-LINE
+
+[workspace]
+exclude = [
+    "scripts/rsp2-pot-debug",
+]
+
+!!MAYBE-OPTIMIZE-SOME-DEPS

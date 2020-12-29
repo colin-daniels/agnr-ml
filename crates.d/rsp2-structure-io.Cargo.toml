@@ -1,0 +1,27 @@
+[package]
+!!CRATE-NAME-LINE
+version = "0.1.0"
+authors = ["Michael Lamparski <diagonaldevice@gmail.com>"]
+description = "For parsing/writing dumb filetypes."
+!!LICENSE-PERMISSIVE
+!!DEFAULT-EDITION
+
+[lib]
+path = "lib.rs"
+
+[dependencies]
+!!failure
+!!vasp-poscar
+!!log
+!!serde
+!!serde-derive
+!!serde-yaml
+!!num-complex
+
+!!rsp2-structure { features = ["serde-support"] }
+!!rsp2-array-types { features = ["serde-support"] }
+!!rsp2-soa-ops
+!!rsp2-util-macros
+
+[features]
+!!NIGHTLY-FEATURE-LINE

@@ -1,0 +1,90 @@
+[package]
+!!CRATE-NAME-LINE
+version = "0.1.0"
+authors = ["Michael Lamparski <diagonaldevice@gmail.com>"]
+description = "Where madness reigns eternal."
+!!DEFAULT-EDITION
+
+# Note: Many files within this crate are dual-licensed under MIT and Apache 2.0
+!!LICENSE-GPL
+
+[lib]
+path = "lib.rs"
+
+[dependencies]
+!!rsp2-tasks-config
+
+!!rsp2-lammps-wrap
+!!lammps-sys { features = ["package-manybody", "package-user-misc", "package-user-omp"] }
+
+!!rsp2-minimize
+!!rsp2-structure { features = ["serde-support"] }
+!!rsp2-structure-io
+!!rsp2-potentials
+!!rsp2-array-types { features = ["serde-support"] }
+!!rsp2-soa-ops { features = ["frunk-support"] }
+!!rsp2-slice-math
+!!rsp2-util-macros
+!!rsp2-fs-util
+!!rsp2-clap
+!!rsp2-assert-close
+!!rsp2-linalg
+!!rsp2-newtype-indices
+!!rsp2-python
+!!rsp2-dftbplus { optional = true, default-features = false }
+!!rsp2-phonopy-io
+!!rsp2-sparse
+!!rsp2-dynmat
+
+!!clap
+!!slice-of-array
+!!rsp2-kets
+!!rand
+!!log
+!!tee
+!!env-logger
+!!failure
+!!fern
+!!either
+!!extension-trait
+!!itertools
+!!lazy-static
+!!ansi-term
+!!petgraph
+!!rayon
+!!rayon-cond
+!!serde
+!!serde-derive
+!!serde-json
+!!serde-yaml
+!!serde-ignored
+!!path-abs
+!!enum-map
+!!frunk
+!!shlex
+!!indoc
+!!lapacke
+!!lapack-src
+!!num-traits
+!!num-complex
+!!num-cpus
+!!mpi { optional = true }
+!!stack
+
+[dev-dependencies]
+!!xz2
+
+[features]
+default = []
+
+!!NIGHTLY-FEATURE-LINE
+
+# FIXME
+# Features for optional deps, because the implicit features defined by deps do not scale well.
+# For now, THESE are what you should toggle in dependent crates.
+#
+# Once namespaced-features are stabilized, these features will be renamed after the deps.
+# see https://github.com/rust-lang/cargo/issues/1286 (problem and proposal)
+#     https://github.com/rust-lang/cargo/issues/5565 (tracking issue, of sorts)
+mpi-support = ["mpi", "rsp2-lammps-wrap/mpi-support"]
+dftbplus-support = ["rsp2-dftbplus", "rsp2-dftbplus/dftbplus-support"]
