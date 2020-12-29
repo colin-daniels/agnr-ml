@@ -15,6 +15,8 @@ pkg-config
 python3.8-dev
 ```
 
+Python dependencies are listed in the root `requirements.txt`.
+
 ## Usage
 TODO
 
