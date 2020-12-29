@@ -31,3 +31,8 @@ git subtree push --prefix=rsp2 rsp2-origin <branch>
 # pull from remote
 git subtree pull --prefix=rsp2 rsp2-origin master --squash
 ```
+
+## License
+In general, this code is available under the MIT license (see `LICENSE`) but
+the `rsp2` component is distributed (in part) under the GNU GPLv3, see
+`rsp2/README.md` and the accompanying license files for more information.
