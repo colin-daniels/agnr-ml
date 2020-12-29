@@ -1,0 +1,43 @@
+[package]
+!!CRATE-NAME-LINE
+version = "0.1.0"
+authors = ["Michael Lamparski <diagonaldevice@gmail.com>"]
+description = "Periodic chemical structure type."
+!!LICENSE-PERMISSIVE
+!!DEFAULT-EDITION
+
+[lib]
+path = "lib.rs"
+
+[dependencies]
+!!rsp2-array-types
+!!rsp2-assert-close
+!!rsp2-soa-ops
+
+!!failure
+!!petgraph
+!!slice-of-array
+!!ordered-float
+!!itertools
+!!lazy-static
+!!num-integer
+!!log
+!!serde { optional = true, features = ["derive"] }
+
+[dev-dependencies]
+!!serde-json
+!!rand
+
+[features]
+default = []
+
+!!NIGHTLY-FEATURE-LINE
+
+# FIXME
+# Features for optional deps, because the implicit features defined by deps do not scale well.
+# For now, THESE are what you should toggle in dependent crates.
+#
+# Once namespaced-features are stabilized, these features will be renamed after the deps.
+# see https://github.com/rust-lang/cargo/issues/1286 (problem and proposal)
+#     https://github.com/rust-lang/cargo/issues/5565 (tracking issue, of sorts)
+serde-support = ["serde", "rsp2-array-types/serde-support"]

@@ -1,0 +1,35 @@
+[package]
+!!CRATE-NAME-LINE
+version = "0.1.0"
+authors = ["Michael Lamparski <diagonaldevice@gmail.com>"]
+description = "Provides mathematical vector and matrix types used throughout rsp2."
+!!LICENSE-PERMISSIVE
+!!DEFAULT-EDITION
+
+[lib]
+path = "lib.rs"
+
+[dependencies]
+!!slice-of-array
+!!num-traits
+!!serde { optional = true, features = ["derive"] }
+!!rand
+!!num-complex
+
+# This should be a dev-dependency, but see this bug:
+# https://github.com/rust-lang/cargo/issues/6915
+!!rsp2-assert-close
+
+[features]
+default = []
+
+!!NIGHTLY-FEATURE-LINE
+
+# FIXME
+# Features for optional deps, because the implicit features defined by deps do not scale well.
+# For now, THESE are what you should toggle in dependent crates.
+#
+# Once namespaced-features are stabilized, these features will be renamed after the deps.
+# see https://github.com/rust-lang/cargo/issues/1286 (problem and proposal)
+#     https://github.com/rust-lang/cargo/issues/5565 (tracking issue, of sorts)
+serde-support = ["serde"]

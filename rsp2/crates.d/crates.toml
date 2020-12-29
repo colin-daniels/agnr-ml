@@ -1,0 +1,136 @@
+# Master config file for crates in this workspace.
+#
+# This is a homegrown solution (I'm sorry) to a number of
+# annoying problems with using workspaces. Cargo.toml files
+# in this workspace are generated from source files that
+# contain lines like this:
+#
+#     !!rsp2-assert-close
+#     !!itertools
+#
+# When you run the following command in the workspace root:
+#
+#     ./crates gen
+#
+# Cargo.toml files are created with those lines expanded to e.g.
+#
+#     rsp2-assert-close = { path = "../../util/assert-close" }
+#     itertools = "0.7"
+#
+# based on metadata in this file.
+
+#--------------------------------------------
+# Which crate represents the workspace?
+root = "rsp2"
+
+#--------------------------------------------
+# Specification of all crates in the workspace and their
+# paths relative to the root. The 'crates' script uses this
+# information to generate the necessary relative paths
+# to include when one crate in the workspace depends on
+# another.
+[crates]
+rsp2                = "."
+rsp2-lammps-wrap    = "src/io/lammps"
+rsp2-tasks          = "src/tasks"
+rsp2-minimize       = "src/minimize"
+rsp2-assert-close   = "src/util/assert-close"
+rsp2-structure      = "src/structure"
+rsp2-structure-io   = "src/io/structure"
+rsp2-slice-math     = "src/util/slice-math"
+rsp2-util-macros    = "src/util/macros"
+rsp2-fs-util        = "src/util/fs"
+rsp2-clap           = "src/util/clap"
+rsp2-tasks-config   = "src/tasks/config"
+rsp2-array-types    = "src/util/array-types"
+rsp2-linalg         = "src/linalg"
+rsp2-integration-test = "src/util/integration-test"
+rsp2-soa-ops        = "src/util/soa-ops"
+rsp2-newtype-indices = "src/util/newtype-indices"
+rsp2-python         = "src/python"
+rsp2-potentials     = "src/potentials"
+rsp2-dftbplus       = "src/io/dftbplus"
+rsp2c-unfold        = "scripts/unfold_lib"
+rsp2-phonopy-io = "src/io/phonopy"
+rsp2-sparse = "src/util/sparse"
+rsp2-dynmat = "src/dynmat"
+#!!INSERTION POINT FOR NEW CRATES!!#
+# (do not edit the above line!)
+
+#--------------------------------------------
+# Versions for external dependencies, so that we don't have
+# to look a whole bunch of them up every single time we make
+# a new crate in the workspace.
+#
+# This also makes it easier to migrate the entire workspace
+# to a new version of a dependency.
+[preferred-versions]
+atty = "0.2.0"
+byte-tools = "0.2.0"
+clap = "2"
+chrono = "0.4"
+either = "1"
+fern = { version = "0.5", features = ["colored"] }
+env_logger = "0.6.1"
+extension-trait = "0.1.2"
+failure = "0.1.2"
+itertools = "0.7"
+lazy_static = "1.4"
+log = "0.4"
+nom = "3"
+num-traits = "0.2.3"
+num-integer = "0.1"
+num-complex = "0.2.1"
+ordered-float = "1.0"
+petgraph = "0.4"
+rand = "0.3"
+serde = { version = "1.0.91", features = ["rc"] }
+serde_derive = "1.0.91"
+serde_json = "1"
+serde_yaml = "0.8"
+serde_ignored = "0.0.4"
+tempdir = "0.3"
+ansi_term = "0.10"
+slice-of-array = "0.2.1"
+rsp2-kets = { tag = "v0.4.0", git = "https://github.com/ExpHP/rsp2-kets", features = ["serde"] }
+lammps-sys = "0.6.0"
+rayon = "1.5"
+vasp-poscar = "0.3.1"
+path_abs = "0.5.0"
+enum-map = "0.4.1"
+frunk = "0.2.0"
+shlex = "0.1.1"
+indoc = "0.2.3"
+lapacke = "0.2"
+lapack-src = { version = "0.6", features = ["openblas"] }
+ndarray = "0.11.2"
+rustc-test = "0.3.0"
+pretty_assertions = "0.5.1"
+mpi = "0.5.4"
+num_cpus = "1.8"
+libffi-sys = "0.6.2"
+include_dir = "0.2.1"
+walkdir = "2"
+vergen = "2"
+stack = "0.3"
+xz2 = "0.1.6"
+objekt = "0.1.1"
+rayon-cond = "0.1.0"
+dftbplus-sys = { git = "https://github.com/ExpHP/dftbplus-sys", tag = "v0.0.1" }
+tee = "0.1.0"
+
+#--------------------------------------------
+# Always optimize some crates when they appear as dependencies.
+#
+# Choose crates that contain monomorphized instances of code that is critical
+# to efficiency. (`pub` generic functions will generally not benefit from the
+# feature).
+#
+# This depends on a cargo nightly feature, so support must be explicitly
+# enabled for it in .crates.d/config.toml
+[always-optimize]
+rsp2-kets = 3
+rsp2-array-utils = 3
+rsp2-array-types = 3
+rsp2-structure = 3
+rsp2-potentials = 3

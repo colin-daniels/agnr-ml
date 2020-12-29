@@ -1,0 +1,73 @@
+#!/usr/bin/env python3
+
+# Runs lammps on a poscar and generates an expected output file
+
+import rsp2.internals.potential_test_util as util
+
+from os.path import join
+import os
+import json
+import tempfile
+import sys
+import shutil
+import subprocess
+
+def main():
+    import argparse
+    p = argparse.ArgumentParser()
+    p.add_argument('POSCAR')
+    p.add_argument('-k', '--keep-temp', action='store_true')
+    lmp = util.CallLammps(p)
+
+    args = p.parse_args()
+    lmp.read_arguments(args)
+
+    tempdir = tempfile.mkdtemp()
+    try:
+        _main(temp=tempdir, poscar=args.POSCAR, lmp=lmp)
+    finally:
+        if args.keep_temp:
+            print(f'Kept tempdir at {tempdir}')
+        else:
+            shutil.rmtree(tempdir)
+
+def _main(temp, poscar, lmp):
+    populate_tempdir(temp, poscar)
+    out = perform_call(temp, lmp)
+    d = read_output(temp, out)
+    json.dump(d, sys.stdout)
+    print()
+
+def populate_tempdir(temp, poscar):
+    import lzma
+    shutil.copyfile('lmp.in', join(temp, 'lmp.in'))
+    data = subprocess.check_output(['python3', 'generate.py', poscar])
+    with open(join(temp, 'structure.data'), 'wb') as f:
+        f.write(data)
+
+    with lzma.open('CH.airebo-nonreactive.xz', 'rt') as f:
+        s = f.read()
+    with open(join(temp, 'CH.airebo-nonreactive'), 'w') as f:
+        f.write(s)
+
+def perform_call(temp, lmp):
+    env = os.environ.copy()
+    env['LAMMPS_POTENTIALS'] = temp
+
+    out = lmp.check_output_or_die(['lmp', '-i', 'lmp.in'], cwd=temp, env=env)
+    print(out, file=sys.stderr)
+
+    return out
+
+def read_output(temp, out):
+    value = util.parse_potential_from_lmp_stdout(out)
+    with open(join(temp, 'dump.force')) as f:
+        force = util.parse_force_dump(f)
+
+    return {
+        'value': value,
+        'grad': (-force).tolist(),
+    }
+
+if __name__ == '__main__':
+    main()

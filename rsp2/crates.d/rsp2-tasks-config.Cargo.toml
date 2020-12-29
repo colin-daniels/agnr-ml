@@ -1,0 +1,25 @@
+[package]
+!!CRATE-NAME-LINE
+version = "0.1.0"
+authors = ["Michael Lamparski <diagonaldevice@gmail.com>"]
+description = "Stuff pulled out of rsp2-tasks because it takes too long to compile."
+!!LICENSE-GPL
+!!DEFAULT-EDITION
+
+[lib]
+path = "lib.rs"
+
+[dependencies]
+!!rsp2-minimize
+!!rsp2-util-macros
+
+!!log
+!!failure
+!!serde
+!!serde-derive
+!!serde-json
+!!serde-yaml
+!!serde-ignored
+
+[features]
+!!NIGHTLY-FEATURE-LINE

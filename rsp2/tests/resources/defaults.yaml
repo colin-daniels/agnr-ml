@@ -1,0 +1,54 @@
+# This is a set of default parameters shared by rsp2's unit tests
+# to make them easier to update.
+#
+# IMPORTANT:
+# The settings in here ARE NOT necessarily the default settings used by rsp2.
+
+# potential: (no default)
+
+version: 1
+
+scale-ranges:
+  repeat-count: 2
+  warn-threshold: 1e-2
+  fail: true
+  scalables: []
+
+cg:
+  stop-condition:
+    any:
+      - value-delta:
+          rel-greater-than: 0
+          steps-ago: 10
+      - iterations: 100
+  alpha-guess-max: 1e-1  # A
+  alpha-guess-first: 1e-2  # A
+
+ev-loop:
+  min-positive-iter: 1
+  max-iter: 3
+
+ev-chase:
+  cg:
+    stop-condition:
+      any:
+        - value-delta:
+            rel-greater-than: 0
+            steps-ago: 5
+        - iterations: 100
+    alpha-guess-max: 1e-1
+    alpha-guess-first: 1e-2
+
+# FIXME this setting needs to be exorcised
+threading: "lammps"
+
+phonons:
+  supercell: {target: [35, 35, 35]}
+  symmetry-tolerance: 1e-2
+  displacement-distance: 1e-4
+  disp-finder:
+    rsp2: {}
+
+layer-gamma-threshold: 0.2
+
+animate: {}

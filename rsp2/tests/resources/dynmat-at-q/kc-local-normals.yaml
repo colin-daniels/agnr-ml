@@ -1,0 +1,43 @@
+---
+potential:
+  - kc-layered:
+      params: original
+      normals:
+        local: {}
+  - rebo-new.params: lammps
+ev-loop:
+  min-positive-iter: 1
+  max-iter: 3
+  fail: false
+ev-chase:
+  cg:
+    stop-condition:
+      any:
+        - value-delta:
+            rel-greater-than: 0
+            steps-ago: 10
+        - iterations: 100
+    alpha-guess-max: 0.1
+    alpha-guess-first: 0.01
+phonons:
+  supercell:
+    dim: [13, 13, 1]
+  disp-finder:
+    phonopy:
+      diag: true
+  eigensolver:
+    rsp2:
+      dense: true
+  symmetry-tolerance: 1e-10
+  displacement-distance: 0.01 # default for phonopy
+
+layer-gamma-threshold: 0.2
+bond-radius: 1.8
+
+# FIXME: This section shouldn't be required for rsp2-dynmat-at-q
+cg:
+  stop-condition:
+    iterations: 0
+
+threading: rayon
+parameters: [a, a, ~]
