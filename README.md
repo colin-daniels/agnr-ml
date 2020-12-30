@@ -7,12 +7,14 @@ Research code for the generation and analysis of armchair graphene nanoribbon
 ## Requirements
 On Ubuntu 20.04, the following packages are required dependencies:
 ```sh
-build-essential
 clang
 cmake
+g++
 gfortran
 libffi-dev
-libopenblas-dev # or alternative
+libopenblas-dev # or lapack/blas alternative
+pkg-config
+make
 pkg-config
 python3.8-dev
 ```
