@@ -14,8 +14,10 @@ fn poscar_from_spec_line(line: &str) -> Result<Poscar, Box<dyn std::error::Error
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     for line in io::stdin().lock().lines() {
-        let poscar_str = format!("{}", poscar_from_spec_line(&line?)?);
-        // convert to json string and output in one line
+        let poscar = poscar_from_spec_line(&line?)?;
+        let poscar_str = format!("{}", poscar);
+
+        // convert to json string and output on a single line
         println!("{}", serde_json::to_string(&poscar_str)?);
     }
 

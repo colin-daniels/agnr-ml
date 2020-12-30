@@ -8,14 +8,6 @@ use std::convert::TryInto;
 use std::hash::Hasher;
 use vasp_poscar::Poscar;
 
-pub mod temp;
-
-#[derive(Deserialize, Serialize)]
-pub struct GNREntry {
-    pub gnr: AGNRSpec,
-    pub poscar: String,
-}
-
 #[derive(Copy, Clone, Debug, Hash, Eq, PartialEq, Ord, PartialOrd, Serialize, Deserialize)]
 #[serde(tag = "type")]
 pub enum Symmetry {
@@ -28,6 +20,7 @@ pub enum Symmetry {
 pub struct AGNRSpec {
     // assumed ordered
     pub spec: Vec<(i32, i32)>,
+    #[serde(skip_serializing_if = "Vec::is_empty", default)]
     pub symmetries: Vec<Vec<Symmetry>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub structure: Option<AtomicStructure>,
