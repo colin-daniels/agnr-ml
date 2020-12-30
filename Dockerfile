@@ -9,15 +9,16 @@ SHELL ["/bin/bash", "-c"]
 RUN apt-get update \
     && DEBIAN_FRONTEND="noninteractive" \
         apt-get install --yes --no-install-recommends \
-            build-essential \
             clang \
             cmake \
+            g++ \
             gfortran \
             libffi-dev \
             libopenblas-dev \
+            make \
             pkg-config \
-            python3-dev \
             python3-venv \
+            python3.8-dev \
             wget \
     && rm -rf /var/lib/apt/lists/*
 
@@ -59,16 +60,25 @@ RUN python3 -m venv .venv \
 ENV VIRTUAL_ENV=/app/.venv \
     PATH=/app/.venv/bin:$PATH
 
-# Build rsp2
+# Install rsp2. The cp command is needed because cargo doesn't install liblammps.so
+# and there doesn't seem to be an easy way to deal with this besides using cargo run.
 COPY rsp2 rsp2
-RUN cargo build --manifest-path=rsp2/Cargo.toml --release --no-default-features --verbose
+RUN cd rsp2 \
+    && cargo install --no-default-features --path . \
+    && cp target/release/build/lammps-sys-*/out/lib/liblammps.so.0 /usr/local/lib \
+    && cargo clean
 
-# Build generation code
+# We don't support lammps potentials, but we can't disable it in rsp2 so just
+# set this to a dummy value to appease rsp2. We also need to set LD_LIBRARY_PATH
+# to pick up the lammps library.
+ENV LAMMPS_POTENTIALS=/dev/null \
+    LD_LIBRARY_PATH=/usr/local/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
+
+# Install generation code
 COPY generation generation
-RUN cargo build --manifest-path=generation/Cargo.toml --release --verbose
-
-# Currently no support for lammps potentials
-ENV LAMMPS_POTENTIALS=/dev/null
+RUN cd generation \
+    && cargo install --path . \
+    && cargo clean
 
 ENTRYPOINT ["/bin/sh", "-c"]
 CMD ["bash"]
