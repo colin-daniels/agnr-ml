@@ -7,7 +7,7 @@ edition = "2018"
 license = "MIT"
 readme = "README.md"
 repository = "https://github.com/colin-daniels/agnr-ml"
-exclude = ["/rsp2/**"]
+exclude = ["/rsp2/**", "/scripts/**"]
 
 [lib]
 name = "agnr_ml"

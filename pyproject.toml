@@ -7,7 +7,12 @@ bindings = "pyo3"
 manylinux = "2010"
 
 [tool.pytest.ini_options]
+minversion = "6.0"
 testpaths = ["tests"]
 filterwarnings = [
     "ignore::DeprecationWarning:pymatgen.*:",
+    "ignore::DeprecationWarning:past.*:",
 ]
+# this is needed to avoid accidental import of
+# agnr_ml when running non-development tests
+addopts = "--import-mode=importlib"

@@ -1,5 +1,5 @@
 # AGNR-ML
-[![Test Status](https://img.shields.io/github/workflow/status/colin-daniels/agnr-ml/Test)](https://github.com/colin-daniels/agnr-ml/actions?query=workflow%3A%22Python+Tests%22)
+[![Test Status](https://img.shields.io/github/workflow/status/colin-daniels/agnr-ml/Test)](https://github.com/colin-daniels/agnr-ml/actions?query=workflow%3ATest)
 
 Research code for the generation and analysis of armchair graphene nanoribbon
 (AGNR) structures using machine learning.
@@ -13,11 +13,12 @@ g++
 gfortran
 libffi-dev
 libopenblas-dev # or lapack/blas alternative
-pkg-config
 make
 pkg-config
 python3.8-dev
 ```
+
+Requires `pip>=19.0` for `pyproject.toml` support.
 
 ## Usage
 TODO
