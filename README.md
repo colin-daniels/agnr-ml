@@ -1,11 +1,11 @@
 # AGNR-ML
-![rust-build-status](https://github.com/colin-daniels/agnr-ml/workflows/Rust/badge.svg)
+[![rust-build-status](https://img.shields.io/github/workflow/status/colin-daniels/agnr-ml/Rust)](https://github.com/colin-daniels/agnr-ml/actions?query=workflow%3ARust)
 
 Research code for the generation and analysis of armchair graphene nanoribbon
 (AGNR) structures using machine learning.
 
 ## Requirements
-On Ubuntu 20.04, the following packages are required dependencies:
+On Ubuntu 20.04, the following packages are required build dependencies:
 ```sh
 clang
 cmake
@@ -18,8 +18,6 @@ make
 pkg-config
 python3.8-dev
 ```
-
-Python dependencies are listed in the root `requirements.txt`.
 
 ## Usage
 TODO

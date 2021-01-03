@@ -50,8 +50,8 @@ jobs:
         source .venv/bin/activate
         pip install --upgrade pip wheel
         # phonopy doesn't like it if numpy isn't installed first
-        pip install -r <(grep numpy requirements.txt)
-        pip install -r requirements.txt
+        pip install -r <(grep numpy rsp2/requirements.txt)
+        pip install -r rsp2/requirements.txt
 
       # Cache cargo files based off of Cargo.lock
     - name: Cache Cargo
@@ -66,7 +66,6 @@ jobs:
     - name: Build
       run: |
         source .venv/bin/activate
-        cargo build --verbose --manifest-path generation/Cargo.toml
         # we don't use MPI for rsp2
         cargo build --verbose --no-default-features --manifest-path rsp2/Cargo.toml
 

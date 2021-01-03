@@ -49,7 +49,7 @@ WORKDIR /app
 
 # Setup python virtual environment
 #   Note that we install numpy first because phonopy gets angry otherwise
-COPY requirements.txt .
+COPY rsp2/requirements.txt .
 RUN python3 -m venv .venv \
     && source .venv/bin/activate \
     && pip install --upgrade pip wheel \
@@ -74,11 +74,7 @@ RUN cd rsp2 \
 ENV LAMMPS_POTENTIALS=/dev/null \
     LD_LIBRARY_PATH=/usr/local/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
 
-# Install generation code
-COPY generation generation
-RUN cd generation \
-    && cargo install --path . \
-    && cargo clean
+# TODO: Install package wheels for agnr_ml
 
 ENTRYPOINT ["/bin/sh", "-c"]
 CMD ["bash"]

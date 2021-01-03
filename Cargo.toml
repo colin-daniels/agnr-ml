@@ -1,8 +1,20 @@
 [package]
-name = "agnr_gen"
+name = "agnr_ml"
 version = "0.1.0"
 authors = ["Colin Daniels <colin.r.daniels@gmail.com>"]
+description = "Library for the generation and analysis of graphene nanoribbons using machine learning."
 edition = "2018"
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/colin-daniels/agnr-ml"
+
+[lib]
+name = "agnr_ml"
+crate-type = ["cdylib", "rlib"]
+
+[dependencies.pyo3]
+version = "0.13"
+features = ["extension-module"]
 
 [dependencies]
 itertools = "0.9"
@@ -12,3 +24,25 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 vasp-poscar = "0.3"
 clap = "3.0.0-beta.2"
+
+[package.metadata.maturin]
+requires-python = ">=3.6"
+requires-dist = [
+    "pymatgen==2020.12.31",
+]
+classifier = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Rust",
+    "Topic :: Scientific/Engineering :: Chemistry",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+# [package.metadata.maturin.scripts]
+# generate = "agnr_ml:generate"

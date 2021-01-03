@@ -1,0 +1,34 @@
+name: Publish Package
+
+on:
+  release:
+    types: [created]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  deploy:
+    runs-on: ubuntu-20.04
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Log into registry
+      run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
+
+    - name: Build and publish
+      env:
+        MATURIN_USERNAME: ${{ secrets.PYPI_USERNAME }}
+        MATURIN_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+      run: |
+        docker run --rm -v "$PWD:/io" docker.pkg.github.com/colin-daniels/maturin-docker/maturin:0.8.3-1.48.0 \
+          publish                        \
+          --interpreter python3.6        \
+          --interpreter python3.7        \
+          --interpreter python3.8        \
+          --interpreter python3.9        \
+          --bindings=pyo3                \
+          --manylinux=2010               \
+          --username=${MATURIN_USERNAME} \
+          --password=${MATURIN_PASSWORD}
