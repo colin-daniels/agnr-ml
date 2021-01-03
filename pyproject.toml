@@ -5,3 +5,9 @@ build-backend = "maturin"
 [tool.maturin]
 bindings = "pyo3"
 manylinux = "2010"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+filterwarnings = [
+    "ignore::DeprecationWarning:pymatgen.*:",
+]

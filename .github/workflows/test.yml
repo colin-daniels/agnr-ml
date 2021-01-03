@@ -1,4 +1,4 @@
-name: Python Tests
+name: Test
 
 on:
   push:
@@ -76,4 +76,4 @@ jobs:
       run: |
         # install from the previously built wheels
         pip install --find-links=dist "$PYTHON_PACKAGE_NAME"
-        pytest tests
+        pytest

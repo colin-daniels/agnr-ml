@@ -1,18 +1,18 @@
 use crate::adjacency::add_hydrogen;
 use crate::agnr::generation::generate_all_agnrs;
-use crate::agnr::spec::AGNRSpec;
 use crate::structure::AtomicStructure;
 use itertools::Itertools;
 use pyo3::prelude::*;
+use std::collections::HashSet;
 use std::convert::TryInto;
 use vasp_poscar::Poscar;
 
 mod generation;
-mod spec;
 
 #[pyclass(module = "agnr_ml")]
+#[derive(Default, Debug, Clone, PartialOrd, PartialEq, Eq, Ord, Hash)]
 pub struct AGNR {
-    spec: AGNRSpec,
+    spec: Vec<(i32, i32)>,
 }
 
 #[pymethods]
@@ -22,9 +22,7 @@ impl AGNR {
         assert!(!spec.is_empty());
 
         // TODO: modify to this converts from the paper's version of the spec
-        AGNR {
-            spec: AGNRSpec(spec),
-        }
+        Self { spec }
     }
 
     #[staticmethod]
@@ -34,38 +32,133 @@ impl AGNR {
         min_width: usize,
         max_width: usize,
         symmetric_only: bool,
-    ) -> Vec<AGNR> {
-        let all_agnrs = generate_all_agnrs(
+    ) -> HashSet<Self> {
+        generate_all_agnrs(
             min_len..(max_len + 1),
             min_width..(max_width + 1),
             symmetric_only,
             max_width,
-        );
-
-        all_agnrs
-            .into_iter()
-            .map(|spec| AGNR::new(spec.0))
-            .collect_vec()
-    }
-
-    /// Number of dimer lines across the AGNR
-    pub fn len(&self) -> usize {
-        self.spec.len() * 2
-    }
-
-    /// Total width if bounding on top/bottom
-    pub fn total_width(&self) -> usize {
-        self.spec.width().unwrap().try_into().unwrap()
+        )
     }
 
     #[getter]
     pub fn spec(&self) -> Vec<(i32, i32)> {
         // TODO: modify to this converts to the paper's version of the spec
-        self.spec.0.clone()
+        self.spec.clone()
+    }
+
+    /// Build an AtomicStructure from an AGNR
+    pub fn to_structure(
+        &self,
+        cc_bond: Option<f64>,
+        ch_bond: Option<f64>,
+        vacuum_sep: Option<f64>,
+    ) -> AtomicStructure {
+        self.to_poscar(cc_bond, ch_bond, vacuum_sep).into()
     }
 }
 
 impl AGNR {
+    pub fn len(&self) -> usize {
+        self.spec.len()
+    }
+
+    pub fn width(&self) -> Option<i32> {
+        self.spec.iter().map(|s| s.1).max()
+    }
+
+    pub fn possible_extensions(&self) -> Option<[(i32, i32); 4]> {
+        self.spec.last().map(|&(l, h)| {
+            [
+                // grow by 1 (y must shift down)
+                (l - 1, h + 1),
+                // shrink by 1 (y must shift up)
+                (l + 1, h - 1),
+                // stay same width (can do either)
+                (l + 1, h + 1),
+                (l - 1, h - 1),
+            ]
+        })
+    }
+
+    pub fn name(&self) -> Option<String> {
+        const CHAR_MAP: &'static [u8] = b"0123456789abcdefghijklmnopqrstuvwxyz";
+        let mut name = Vec::new();
+        for &(low, high) in &self.spec {
+            let low: usize = low.try_into().ok()?;
+            let high: usize = high.try_into().ok().filter(|&h| h < CHAR_MAP.len())?;
+
+            // dont output first number since it's always 0 according to our convention
+            if !name.is_empty() {
+                name.push(CHAR_MAP[low]);
+            } else {
+                assert_eq!(low, 0, "spec should always start with 0");
+            }
+
+            name.push(CHAR_MAP[high]);
+        }
+
+        Some(String::from_utf8(name).unwrap())
+    }
+
+    pub fn is_periodic(&self) -> bool {
+        if self.spec.len() == 0 {
+            return true;
+        }
+
+        let first = self.spec.first().unwrap();
+        for next in &self.possible_extensions().unwrap() {
+            if next == first {
+                return true;
+            }
+        }
+        false
+    }
+
+    /// Get the "minimum" spec after applying all possible transformations.
+    /// Returns the minimum and whether or not the structure has any symmetries.
+    pub fn minimum_image(&self) -> (Self, bool) {
+        // if we hit the requisite length and we can properly "connect" back to ourselves
+        // across the periodic boundary
+        let width = self.width().unwrap();
+        let mut temp = self.spec.clone();
+        let mut minimum_image = self.spec.clone();
+        let mut has_symmetry = false;
+
+        // get the "minimum" spec out of all possible images of the GNR
+        for &x_mirror in &[false, true] {
+            for &y_mirror in &[false, true] {
+                for shift in 0..temp.len() {
+                    // check + add symmetries
+                    if (x_mirror || y_mirror || shift != 0) && temp == self.spec {
+                        has_symmetry = true;
+                    }
+
+                    // check for minimum
+                    if temp < minimum_image {
+                        minimum_image.copy_from_slice(&temp);
+                    }
+
+                    // translations
+                    temp.rotate_right(1);
+                }
+                // y mirror plane
+                temp.reverse();
+            }
+            // x mirror plane
+            for v in &mut temp {
+                *v = (width - v.1, width - v.0);
+            }
+        }
+
+        (
+            Self {
+                spec: minimum_image,
+            },
+            has_symmetry,
+        )
+    }
+
     /// Build a Poscar from an AGNR
     pub fn to_poscar(
         &self,
@@ -87,7 +180,6 @@ impl AGNR {
         let spec = &self.spec;
         // compute the coordinates of all of the carbon atoms
         let coords = spec
-            .0
             .iter()
             .enumerate()
             .flat_map(|(i, s)| {
@@ -109,8 +201,8 @@ impl AGNR {
             .group_counts(vec![coords.len()])
             .group_symbols(vec!["C"])
             .lattice_vectors(&[
-                [dx * spec.len() as f64, 0.0, 0.0],
-                [0.0, dy * spec.width().unwrap() as f64 + vacuum_sep, 0.0],
+                [dx * self.len() as f64, 0.0, 0.0],
+                [0.0, dy * self.width().unwrap() as f64 + vacuum_sep, 0.0],
                 [0.0, 0.0, vacuum_sep],
             ])
             .positions(Coords::Cart(coords))
@@ -119,15 +211,5 @@ impl AGNR {
 
         // add hydrogen and that's it
         add_hydrogen(poscar, ch_bond, cc_cutoff)
-    }
-
-    /// Build an AtomicStructure from an AGNR
-    pub fn to_structure(
-        &self,
-        cc_bond: Option<f64>,
-        ch_bond: Option<f64>,
-        vacuum_sep: Option<f64>,
-    ) -> AtomicStructure {
-        self.to_poscar(cc_bond, ch_bond, vacuum_sep).into()
     }
 }

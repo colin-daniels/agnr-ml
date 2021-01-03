@@ -2,7 +2,7 @@ use super::{Atom, AtomicStructure};
 use std::convert::TryInto;
 use vasp_poscar::{Poscar, ValidationError};
 
-impl<M: Default> From<Poscar> for AtomicStructure<M> {
+impl From<Poscar> for AtomicStructure {
     fn from(p: Poscar) -> Self {
         let lattice_vectors = p.scaled_lattice_vectors();
         let coords = p.scaled_cart_positions();
@@ -26,12 +26,11 @@ impl<M: Default> From<Poscar> for AtomicStructure<M> {
         Self {
             lattice_vectors,
             atoms,
-            meta: Default::default(),
         }
     }
 }
 
-impl<M> TryInto<Poscar> for AtomicStructure<M> {
+impl TryInto<Poscar> for &AtomicStructure {
     type Error = ValidationError;
 
     fn try_into(self) -> Result<Poscar, Self::Error> {

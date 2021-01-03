@@ -1,5 +1,5 @@
 # AGNR-ML
-[![rust-build-status](https://img.shields.io/github/workflow/status/colin-daniels/agnr-ml/Rust)](https://github.com/colin-daniels/agnr-ml/actions?query=workflow%3ARust)
+[![Test Status](https://img.shields.io/github/workflow/status/colin-daniels/agnr-ml/Test)](https://github.com/colin-daniels/agnr-ml/actions?query=workflow%3A%22Python+Tests%22)
 
 Research code for the generation and analysis of armchair graphene nanoribbon
 (AGNR) structures using machine learning.
