@@ -1,9 +1,7 @@
 use crate::adjacency::add_hydrogen;
-use crate::agnr::generation::generate_all_agnrs;
 use crate::structure::AtomicStructure;
 use itertools::Itertools;
 use pyo3::prelude::*;
-use std::collections::HashSet;
 use std::convert::TryInto;
 use vasp_poscar::Poscar;
 
@@ -20,25 +18,8 @@ impl AGNR {
     #[new]
     pub fn new(spec: Vec<(i32, i32)>) -> Self {
         assert!(!spec.is_empty());
-
         // TODO: modify to this converts from the paper's version of the spec
         Self { spec }
-    }
-
-    #[staticmethod]
-    pub fn all_possible_agnrs(
-        min_len: usize,
-        max_len: usize,
-        min_width: usize,
-        max_width: usize,
-        symmetric_only: bool,
-    ) -> HashSet<Self> {
-        generate_all_agnrs(
-            min_len..(max_len + 1),
-            min_width..(max_width + 1),
-            symmetric_only,
-            max_width,
-        )
     }
 
     #[getter]
@@ -151,12 +132,7 @@ impl AGNR {
             }
         }
 
-        (
-            Self {
-                spec: minimum_image,
-            },
-            has_symmetry,
-        )
+        (Self::new(minimum_image), has_symmetry)
     }
 
     /// Build a Poscar from an AGNR
@@ -173,9 +149,10 @@ impl AGNR {
         let ch_bond = ch_bond.unwrap_or(1.09047);
         let vacuum_sep = vacuum_sep.unwrap_or(15.0);
 
-        let dx = (3.0 * cc_bond) / 2.0;
+        // horizontal distance between each hexagonal "segment" of the GNR
+        let dx = 1.5 * cc_bond;
+        // vertical distance between each carbon atom in the GNR
         let dy = (f64::sqrt(3.0) * cc_bond) / 2.0;
-        let cc_cutoff = cc_bond * 1.1;
 
         let spec = &self.spec;
         // compute the coordinates of all of the carbon atoms
@@ -183,18 +160,21 @@ impl AGNR {
             .iter()
             .enumerate()
             .flat_map(|(i, s)| {
-                // note: the (constant) adjustments to x/y/z are just to center the structure
-                // nicely in the periodic cell
-                let x = dx * i as f64 - cc_bond / 2.0;
-                (s.0..s.1).step_by(2).flat_map(move |y| {
-                    let y = y as f64 * dy + vacuum_sep / 2.0;
-                    let z = vacuum_sep / 2.0;
-                    let atom_1 = [x, y, z];
-                    let atom_2 = [x + cc_bond, y, z];
+                let x = i as f64 * dx;
+                (s.0..s.1).step_by(2).flat_map(move |j| {
+                    let y = j as f64 * dy;
+                    let atom_1 = [x, y];
+                    let atom_2 = [x + cc_bond, y];
                     Iterator::chain(once(atom_1), once(atom_2))
                 })
             })
+            .map(|[x, y]| {
+                // adjust x/y and add z coord to center the structure nicely in the periodic cell
+                [x - cc_bond / 2.0, y + vacuum_sep / 2.0, vacuum_sep / 2.0]
+            })
             .collect_vec();
+
+        let gnr_width = (self.width().unwrap() - 2) as f64 * dy;
 
         // build a Poscar from just the carbon atoms
         let poscar = Builder::new()
@@ -202,7 +182,7 @@ impl AGNR {
             .group_symbols(vec!["C"])
             .lattice_vectors(&[
                 [dx * self.len() as f64, 0.0, 0.0],
-                [0.0, dy * self.width().unwrap() as f64 + vacuum_sep, 0.0],
+                [0.0, gnr_width + vacuum_sep, 0.0],
                 [0.0, 0.0, vacuum_sep],
             ])
             .positions(Coords::Cart(coords))
@@ -210,6 +190,7 @@ impl AGNR {
             .unwrap();
 
         // add hydrogen and that's it
-        add_hydrogen(poscar, ch_bond, cc_cutoff)
+        let cutoff_distance = cc_bond * 1.1;
+        add_hydrogen(poscar, ch_bond, cutoff_distance)
     }
 }

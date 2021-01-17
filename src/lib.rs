@@ -9,8 +9,8 @@ pub mod adjacency;
 mod agnr;
 pub mod structure;
 
-use crate::structure::AtomicStructure;
 pub use agnr::AGNR;
+pub use structure::AtomicStructure;
 
 /// Native extension module for agnr_ml.
 #[pymodule]

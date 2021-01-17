@@ -22,18 +22,31 @@ class AGNR:
             ch_bond: float = 1.09047,
             vacuum_sep: float = 15.0,
     ) -> Structure:
+        # get the native structure representation and
+        # convert to pymatgen's structure type
         structure = self._spec.to_structure(
             cc_bond=cc_bond,
             ch_bond=ch_bond,
             vacuum_sep=vacuum_sep,
         )
-
         return Structure(
             lattice=Lattice(structure.lattice()),
             species=structure.types(),
             coords=structure.coords(),
             coords_are_cartesian=True,
         )
+
+    def to_poscar_string(
+            self,
+            cc_bond: float = 1.42045,
+            ch_bond: float = 1.09047,
+            vacuum_sep: float = 15.0,
+    ) -> Structure:
+        return self._spec.to_structure(
+            cc_bond=cc_bond,
+            ch_bond=ch_bond,
+            vacuum_sep=vacuum_sep,
+        ).to_poscar_string()
 
 
 def generate_all_possible_agnrs(
@@ -43,7 +56,7 @@ def generate_all_possible_agnrs(
     max_width: int,
     symmetric_only: bool = False,
 ) -> Generator[AGNR, None, None]:
-    all_agnrs = NativeAGNR.all_possible_agnrs(
+    all_agnrs = NativeAGNR.generate_all_agnrs(
         min_len=min_len,
         max_len=max_len,
         min_width=min_width,
